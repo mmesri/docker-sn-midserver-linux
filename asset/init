@@ -4,6 +4,7 @@ set -e
 MID_HOME="/opt/agent"
 CONF_FILE="${MID_HOME}/config.xml"
 CONF_FILE_ORIGIN="/opt/config.xml"
+WRAPPER_FILE="${MID_HOME}/conf/wrapper-override.conf"
 
 # Mandatory ENV
 SN_URL=${SN_URL:-}
@@ -11,11 +12,24 @@ SN_USER=${SN_USER:-}
 SN_PASSWD=${SN_PASSWD:-}
 SN_MID_NAME=${SN_MID_NAME:-}
 
+# Optional ENV
+SN_MID_NAME_STATIC=${SN_MID_NAME_STATIC:-}
+SN_MAX_THREADS=${SN_MAX_THREADS:-}
+SN_JVM_SIZE=${SN_JVM_SIZE:-}
+SN_PROXY_HOST=${SN_PROXY_HOST:-}
+SN_PROXY_PORT=${SN_PROXY_PORT:-}
+SN_PROXY_USERNAME=${SN_PROXY_USERNAME:-}
+SN_PROXY_PASSWORD=${SN_PROXY_PASSWORD:-}
+
 #generate random uuid
 APPEND_UUID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
 
 #combine sn_mid_name and uuid
-SN_MID_NAME_UNIQUE="$SN_MID_NAME-$APPEND_UUID"
+if ( $SN_MID_NAME_STATIC = true); then
+  SN_MID_NAME_UNIQUE="$SN_MID_NAME"
+else
+  SN_MID_NAME_UNIQUE="$SN_MID_NAME-$APPEND_UUID"
+fi
 
 checkConf () {
   if [ ! -e $CONF_FILE ]
@@ -31,6 +45,29 @@ generateConf () {
   /opt/fill-config-parameter $CONF_FILE mid.instance.username ${SN_USER}
   /opt/fill-config-parameter $CONF_FILE mid.instance.password ${SN_PASSWD}
   /opt/fill-config-parameter $CONF_FILE url ${SN_URL}
+  
+  # Set "threads.max" Parameter
+  if [ -n "$SN_MAX_THREADS" ]; then
+    /opt/fill-config-parameter $CONF_FILE threads.max ${SN_MAX_THREADS}
+  fi
+	
+	# Add Proxy Settings if they exist; else leave them commented out in config file
+	if [ -n "$SN_PROXY_HOST" ]; then
+		/opt/fill-config-parameter $CONF_FILE mid.proxy.use_proxy true
+		/opt/fill-config-parameter $CONF_FILE mid.proxy.host ${SN_PROXY_HOST}
+		/opt/fill-config-parameter $CONF_FILE mid.proxy.port ${SN_PROXY_PORT}
+	fi
+	
+	# Add Proxy Username if they exist; else leave them commented out in config file
+	if [ -n "$SN_PROXY_USERNAME" ]; then
+		/opt/fill-config-parameter $CONF_FILE mid.proxy.username ${SN_PROXY_USERNAME}
+		/opt/fill-config-parameter $CONF_FILE mid.proxy.password ${SN_PROXY_PASSWORD}
+	fi
+	
+	# update JVM file if property passed
+	if [ -n "$SN_JVM_SIZE" ]; then
+		echo wrapper.java.maxmemory=$SN_JVM_SIZE >> ${WRAPPER_FILE} 
+	fi
 }
 
 midStart () {
