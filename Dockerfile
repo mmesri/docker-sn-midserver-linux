@@ -1,6 +1,6 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
-LABEL maintainer="ezra walgraf"
+LABEL maintainer="Mike Mesri"
 
 # To get rid of error messages like "debconf: unable to initialize frontend: Dialog":
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
@@ -17,7 +17,7 @@ RUN apt-get -q update && apt-get install -qy unzip \
     rm -rf /tmp/*
 
 RUN wget --no-check-certificate \
-      https://install.service-now.com/glide/distribution/builds/package/mid/2019/09/05/mid.newyork-06-26-2019__patch1-hotfix1-09-04-2019_09-05-2019_1536.linux.x86-64.zip \
+      https://install.service-now.com/glide/distribution/builds/package/app-signed/mid/2021/03/01/mid.quebec-12-09-2020__patch1-02-18-2021_03-01-2021_1225.linux.x86-64.zip \
       -O /tmp/mid.zip && \
     unzip -d /opt /tmp/mid.zip && \
     mv /opt/agent/config.xml /opt/ && \
