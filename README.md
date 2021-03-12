@@ -1,16 +1,12 @@
-[![License MIT](https://img.shields.io/badge/license-ISC-blue.svg)](https://opensource.org/licenses/ISC) [![](https://img.shields.io/docker/pulls/andrekosak/sn-midserver.svg)](https://hub.docker.com/r/andrekosak/sn-midserver 'DockerHub') [![](https://ga-beacon.appspot.com/UA-82522402-3/readme?pixel)](https://github.com/igrigorik/ga-beacon)
+# What is ServiceNow MID Sever
 
-# What is ServiceNow Mid Sever
-
-[Read here](https://docs.servicenow.com/bundle/newyork-servicenow-platform/page/product/mid-server/concept/mid-server-landing.html)
+[Read here](https://docs.servicenow.com/bundle/paris-servicenow-platform/page/product/mid-server/concept/mid-server-landing.html)
 
 Why do you need it? Just ignore this repo if you don't know the answer.
 
-# TL;DR;
+# TLDR
 
-* **NewYork**: `ezrawalgraf/snow_mid_docker_new_york:latest`
-
-
+`mmesri/snow_mid_docker:linux`
 
 ## Get started right away
 
@@ -20,7 +16,18 @@ $ docker run -d --name sn-mid-server \
   -e 'SN_USER=username' \
   -e 'SN_PASSWD=userpassword' \
   -e 'SN_MID_NAME=sn-mid-server' \
-  ezrawalgraf/snow_mid_docker_new_york:latest
+  mmesri/snow_mid_docker:linux
+```
+
+```
+Optional Parameters:
+SN_MID_NAME_STATIC      (If TRUE, do not append random UUID to end of MID Server Name)
+SN_MAX_THREADS          (Set max thread count in MID Server Parameters)
+SN_JVM_SIZE             (Sets the JVM Size in MB)
+SN_PROXY_HOST           (Sets required proxy host)
+SN_PROXY_PORT           (Sets the required proxy port)
+SN_PROXY_USERNAME       (Sets required proxy username)
+SN_PROXY_PASSWORD       (Sets the required proxy password)
 ```
 
 or using Docker Compose:
@@ -30,7 +37,7 @@ version: '3'
 services:
   midserver:
     container_name: sn-midserver
-    image: ezrawalgraf/snow_mid_docker_new_york:latest
+    image: mmesri/snow_mid_docker:linux
     network_mode: host
     environment:
       - SN_URL=https://dev00000.service-now.com
@@ -39,7 +46,7 @@ services:
       - SN_MID_NAME=my-mid-server
 ```
 
-# Persisting logs
+# Persisting Logs
 
 ```bash
 $ docker run -d --name sn-mid-server \
@@ -48,7 +55,7 @@ $ docker run -d --name sn-mid-server \
   -e 'SN_PASSWD=password' \
   -e 'SN_MID_NAME=my-mid-server' \
   -v './sn-midserver/logs:/opt/agent/logs' \
-  ezrawalgraf/snow_mid_docker_new_york:latest
+  mmesri/snow_mid_docker:linux
 ```
 
 or using Docker Compose:
@@ -58,7 +65,7 @@ version: '3'
 services:
   midserver:
     container_name: sn-midserver
-    image: ezrawalgraf/snow_mid_docker_new_york:latest
+    image: mmesri/snow_mid_docker:linux
     volumes:
       - ./sn-midserver/logs:/opt/agent/logs
     network_mode: host
