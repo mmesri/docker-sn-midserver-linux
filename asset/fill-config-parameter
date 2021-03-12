@@ -1,6 +1,18 @@
 #!/bin/bash
 set -e
 
+# Couldn't find a good way to uncomment XML tags so just appending the tags we need if they can't be found in the config file
+if [ -n "$(xmlstarlet sel -T -t -v "/parameters/parameter[@name='$2']/@value" $1)" ]; then
+    echo "Updating parameter $2 in $1"
+else
+    echo "Parameter does not exist. Adding parameter $2 in $1"
+    xmlstarlet edit -P -S -L --subnode /parameters --type elem --name parameterTMP --value "" \
+    --insert //parameterTMP --type attr --name "name" --value "$2" \
+    --insert //parameterTMP --type attr --name "value" --value "$3" \
+    --rename //parameterTMP --value parameter \
+    $1
+fi
+
 xmlstarlet edit \
     --inplace \
     --update "/parameters/parameter[@name='$2']/@value" \
