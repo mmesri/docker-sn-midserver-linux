@@ -12,11 +12,11 @@ Why do you need it? Just ignore this repo if you don't know the answer.
 
 ```bash
 $ docker run -d --name sn-mid-server \
-  -e 'SN_URL=https://dev00000.service-now.com' \
-  -e 'SN_USER=username' \
-  -e 'SN_PASSWD=userpassword' \
-  -e 'SN_MID_NAME=sn-mid-server' \
-  mmesri/snow_mid_docker:linux
+             -e 'SN_URL=https://dev00000.service-now.com' \
+             -e 'SN_USER=username' \
+             -e 'SN_PASSWD=userpassword' \
+             -e 'SN_MID_NAME=sn-mid-server' \
+             mmesri/snow_mid_docker:linux
 ```
 
 ```
@@ -46,16 +46,46 @@ services:
       - SN_MID_NAME=my-mid-server
 ```
 
+or using 'systemd' (Reccomended)
+
+```yaml
+[Unit]
+Description=ServiceNow MID Server Agent
+Documentation=https://docs.servicenow.com/bundle/paris-servicenow-platform/page/product/mid-server/concept/mid-server-landing.html
+After=network.target auditd.service docker.service
+
+[Service]
+ExecStartPre=/usr/bin/docker pull mmesri/snow_mid_docker:linux
+ExecStart=/usr/bin/docker run --rm  \
+                              --name sn-mid-server \
+                              -e 'SN_URL=https://dev00000.service-now.com' \
+                              -e 'SN_USER=username' \
+                              -e 'SN_PASSWD=password' \
+                              -e 'SN_MID_NAME='%H \
+                              --network="host" \
+                              --health-cmd="/opt/agent/bin/mid.sh status" \
+                              --health-interval=60s \
+                              --health-start-period=15s \
+                              --health-retries=3 \
+                              --health-timeout=10s\
+                              mmesri/snow_mid_docker:linux
+ExecStop=/usr/bin/docker exec sn-mid-server /opt/agent/bin/mid.sh stop
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
 # Persisting Logs
 
 ```bash
 $ docker run -d --name sn-mid-server \
-  -e 'SN_URL=https://dev00000.service-now.com' \
-  -e 'SN_USER=username' \
-  -e 'SN_PASSWD=password' \
-  -e 'SN_MID_NAME=my-mid-server' \
-  -v './sn-midserver/logs:/opt/agent/logs' \
-  mmesri/snow_mid_docker:linux
+             -e 'SN_URL=https://dev00000.service-now.com' \
+             -e 'SN_USER=username' \
+             -e 'SN_PASSWD=password' \
+             -e 'SN_MID_NAME=my-mid-server' \
+             -v './sn-midserver/logs:/opt/agent/logs' \
+             mmesri/snow_mid_docker:linux
 ```
 
 or using Docker Compose:
