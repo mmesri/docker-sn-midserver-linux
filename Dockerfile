@@ -27,6 +27,8 @@ RUN wget --no-check-certificate \
 
 EXPOSE 80 443
 
+USER root
+
 ENTRYPOINT ["/opt/init"]
 
 CMD ["mid:start"]
